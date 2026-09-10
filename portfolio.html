@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaSushi</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+    :root {
+      /* Light Mode Variables */
+      --bg-color: #f4f4f4;
+      --text-color: #1c1d20;
+      --placeholder-bg: #e0e0e0;
+      --border-color: rgba(28, 29, 32, 0.15); 
+      
+      /* Header Variables */
+      --nav-gradient: linear-gradient(to bottom, rgba(244, 244, 244, 0.9) 0%, rgba(244, 244, 244, 0) 100%);
+      --glass-bg: rgba(244, 244, 244, 0.4); 
+      --hero-shadow: none; 
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode Variables */
+      --bg-color: #1c1d20;
+      --text-color: #ffffff;
+      --placeholder-bg: #2c2d30;
+      --border-color: rgba(255, 255, 255, 0.1);
+      
+      /* Header Variables */
+      --nav-gradient: linear-gradient(to bottom, rgba(28, 29, 32, 0.9) 0%, rgba(28, 29, 32, 0) 100%);
+      --glass-bg: rgba(28, 29, 32, 0.4); 
+      --hero-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3), 0px 4px 15px rgba(0, 0, 0, 0.25); 
+    }
+
+    /* --- HIDE NATIVE SCROLLBAR --- */
+    ::-webkit-scrollbar {
+      display: none; 
+    }
+    
+    html {
+      scrollbar-width: none; 
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- SLIDING NAVIGATION --- */
+    #top-hover-zone {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      z-index: 1001; 
+    }
+
+    .sliding-nav {
+      position: fixed; 
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999; 
+      
+      background: var(--nav-gradient);
+      border-bottom: none; 
+      
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4rem;
+      padding-right: 12rem; 
+      height: 100px; 
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), background 0.4s ease, backdrop-filter 0.4s ease;
+    }
+
+    .sliding-nav.scrolled {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: none;
+    }
+
+    .sliding-nav.hidden {
+      transform: translateY(-100%);
+    }
+
+    /* --- DYNAMIC LOGO --- */
+    .brand-logo {
+      display: block;
+      height: 3rem; 
+      width: auto; 
+      transition: filter 0.4s ease;
+    }
+
+    :root .brand-logo {
+      filter: grayscale(100%) contrast(500%) invert(1); 
+      mix-blend-mode: multiply; 
+    }
+    
+    [data-theme="dark"] .brand-logo {
+      filter: grayscale(100%) contrast(500%) invert(0); 
+      mix-blend-mode: screen; 
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 400;
+    }
+
+    /* --- FIXED THEME BUTTON --- */
+    .theme-toggle {
+      position: fixed; 
+      top: 50px; 
+      transform: translateY(-50%);
+      right: 4rem;
+      z-index: 1000;
+      
+      background-color: var(--glass-bg); 
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.3s ease;
+    }
+
+    /* --- TOP MEDIA HERO WITH VIDEO --- */
+    .media-hero {
+      height: 100vh; 
+      width: 100%;
+      background-color: var(--bg-color); 
+      transition: background-color 0.4s ease;
+      position: relative; 
+      overflow: hidden; 
+    }
+
+    .hero-video-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      z-index: 1; 
+    }
+
+    .hero-morse {
+      position: absolute;
+      top: 50%; 
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 7.5vw; 
+      font-weight: 600; 
+      letter-spacing: -.05em;
+      white-space: nowrap; 
+      color: var(--text-color);
+      z-index: 2; 
+      
+      text-shadow: var(--hero-shadow);
+      transition: text-shadow 0.4s ease, color 0.4s ease; 
+    }
+
+    /* --- 2X BIGGER MINIMALIST SCROLL ARROW (LOCKED TO BLACK) --- */
+    .hero-scroll-arrow {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      animation: bounce 2s infinite;
+    }
+
+    .hero-scroll-arrow svg {
+      width: 56px; 
+      height: 56px;
+      stroke: #1c1d20; 
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      40% {
+        transform: translateX(-50%) translateY(-10px);
+      }
+      60% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+
+    /* --- INTRO TEXT SECTION --- */
+    .intro-text {
+      padding: 8rem 4rem 4rem 4rem;
+    }
+
+    .intro-text h1 {
+      font-size: 6vw; 
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -.05em;
+      margin-bottom: 3rem;
+    }
+
+    .hero-subtext {
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 10vw;
+    }
+
+    .hero-subtext p {
+      max-width: 400px;
+      font-size: 1.2rem;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    /* --- RECENT WORK SECTION --- */
+    .work {
+      padding: 6rem 4rem;
+    }
+
+    .work-header {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+      margin-bottom: 4rem;
+    }
+
+    .project {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding: 3rem 0;
+      cursor: pointer;
+    }
+
+    .project-image {
+      width: 45%;
+      aspect-ratio: 16 / 9; 
+      background-color: var(--placeholder-bg);
+      transition: background-color 0.4s ease;
+    }
+
+    .project-details {
+      width: 50%;
+    }
+
+    .project-title {
+      font-size: 3.5rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-category {
+      font-size: 1rem;
+      font-weight: 300;
+      opacity: 0.7;
+    }
+
+    /* --- FOOTER --- */
+    footer {
+      padding: 8rem 4rem 4rem 4rem;
+      text-align: center;
+      background-color: var(--text-color);
+      color: var(--bg-color);
+    }
+
+    footer h2 {
+      font-size: 8vw;
+      font-weight: 400;
+      letter-spacing: -.05em;
+      margin-bottom: 2rem;
+    }
+
+    /* --- PRELOADER --- */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .preloader-content {
+      font-size: 7.5vw; 
+      font-weight: 600; 
+      letter-spacing: -.05em;
+      white-space: nowrap; 
+      text-align: center;
+    }
+
+    #cursor {
+      display: inline-block;
+      font-weight: 400;
+      animation: blink 1s step-end infinite;
+      transition: opacity 0.3s ease; 
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .preloader-hidden {
+      opacity: 0;
+      visibility: hidden;
+    }  
+
+    /* --- SCROLL REVEAL ANIMATION CLASSES --- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(60px); 
+      transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); 
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0); 
+    }
+
+    /* --- INVERSE PROGRESS SCROLLBAR --- */
+    #custom-scrollbar {
+      position: fixed;
+      bottom: 0; 
+      right: 0; 
+      width: 6px; 
+      background-color: var(--text-color); 
+      border-radius: 0; 
+      z-index: 10001; 
+      opacity: 0; 
+      transition: opacity 0.2s ease; 
+      pointer-events: none; 
+    }
+
+    #custom-scrollbar.visible {
+      opacity: 0.6; 
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="preloader-content">
+      <span style="visibility: hidden; font-weight: 400;">|</span><span id="typewriter"></span><span id="cursor">|</span>
+    </div>
+  </div>
+
+  <!-- CUSTOM SCROLLBAR -->
+  <div id="custom-scrollbar"></div>
+
+  <!-- INVISIBLE HOVER ZONE AT TOP -->
+  <div id="top-hover-zone"></div>
+
+  <!-- SLIDING NAVIGATION BAR -->
+  <div class="sliding-nav" id="sliding-nav">
+    <a href="#">
+      <img src="logo.png" alt="LaSushi" class="brand-logo">
+    </a>
+    
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+
+  <!-- PERMANENTLY FIXED THEME BUTTON -->
+  <button class="theme-toggle" id="toggle-btn">Light Mode</button>
+
+  <!-- Full Screen Top Area with Video -->
+  <section class="media-hero">
+    <video class="hero-video-bg" autoplay loop muted playsinline>
+      <source src="hero-video.mp4" type="video/mp4">
+    </video>
+    <div class="hero-morse"><span style="visibility: hidden; font-weight: 400;">|</span>LaSushi<span style="visibility: hidden; font-weight: 400;">|</span></div>
+    
+    <!-- 2x Bigger Bouncing Arrow (Black) -->
+    <div class="hero-scroll-arrow">
+      <svg viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Intro Text -->
+  <section class="intro-text reveal">
+    <h1>Graphic Designer —<br>Post-Production Specialist</h1>
+    <div class="hero-subtext">
+      <p>Helping creators and brands tell better stories through sequence blocking, pacing, and cinematic execution. Based in the Philippines.</p>
+    </div>
+  </section>
+
+  <!-- Work Section -->
+  <section class="work" id="work">
+    <div class="work-header reveal">Recent Work</div>
+
+    <div class="project reveal">
+      <div class="project-details">
+        <h2 class="project-title">Media Marathon</h2>
+        <span class="project-category">Sequence Blocking & Assembly</span>
+      </div>
+      <div class="project-image"></div>
+    </div>
+
+    <div class="project reveal">
+      <div class="project-image"></div>
+      <div class="project-details" style="padding-left: 5%;">
+        <h2 class="project-title">Creative Edit</h2>
+        <span class="project-category">Multi-Cam & Lower Thirds</span>
+      </div>
+    </div>
+    
+    <div class="project reveal">
+      <div class="project-details">
+        <h2 class="project-title">Guitar Performance</h2>
+        <span class="project-category">Audio Sync & Live Cut</span>
+      </div>
+      <div class="project-image"></div>
+    </div>
+  </section>
+
+  <footer id="contact" class="reveal">
+    <h2>Let's work together</h2>
+    <p>Landrewjunil@gmail.com</p>
+  </footer>
+
+  <script>
+    // --- PRELOADER TYPEWRITER LOGIC ---
+    const morseText = "LaSushi";
+    const typewriterElement = document.getElementById("typewriter");
+    const cursorElement = document.getElementById("cursor"); 
+    const preloaderElement = document.getElementById("preloader");
+    let typeIndex = 0;
+    const typingSpeed = 150; 
+
+    function typeWriter() {
+      if (typeIndex < morseText.length) {
+        typewriterElement.innerHTML += morseText.charAt(typeIndex);
+        typeIndex++;
+        setTimeout(typeWriter, typingSpeed);
+      } else {
+        setTimeout(() => {
+          cursorElement.style.opacity = "0"; 
+          cursorElement.style.animation = "none"; 
+        }, 500);
+
+        setTimeout(() => {
+          preloaderElement.classList.add("preloader-hidden");
+        }, 1200); 
+      }
+    }
+
+    window.onload = () => {
+      typeWriter();
+    };
+
+    // Dark & Light Mode Logic
+    const toggleBtn = document.getElementById('toggle-btn');
+    const htmlElement = document.documentElement;
+
+    toggleBtn.addEventListener('click', () => {
+      if (htmlElement.getAttribute('data-theme') === 'dark') {
+        htmlElement.setAttribute('data-theme', 'light');
+        toggleBtn.textContent = 'Dark Mode';
+      } else {
+        htmlElement.setAttribute('data-theme', 'dark');
+        toggleBtn.textContent = 'Light Mode';
+      }
+    });
+
+    // --- SCROLL REVEAL LOGIC ---
+    function revealElements() {
+      const reveals = document.querySelectorAll('.reveal');
+      for (let i = 0; i < reveals.length; i++) {
+        const windowHeight = window.innerHeight;
+        const elementTop = reveals[i].getBoundingClientRect().top;
+        const elementVisible = 100; 
+
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add('active');
+        }
+      }
+    }
+    
+    window.addEventListener('scroll', revealElements);
+    setTimeout(revealElements, 2000); 
+
+    // --- INVERSE PROGRESS SCROLLBAR LOGIC ---
+    const customScrollbar = document.getElementById('custom-scrollbar');
+    let scrollTimeout;
+
+    function handleScrollbar() {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const maxScroll = documentHeight - windowHeight;
+      const scrollY = window.scrollY;
+
+      if (maxScroll <= 0) return;
+
+      const scrollPercentage = scrollY / maxScroll;
+      const thumbHeight = windowHeight * (1 - scrollPercentage);
+      customScrollbar.style.height = `${thumbHeight}px`;
+      customScrollbar.style.transform = `none`; 
+      customScrollbar.classList.add('visible');
+
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        customScrollbar.classList.remove('visible');
+      }, 200); 
+    }
+
+    window.addEventListener('scroll', handleScrollbar);
+    window.addEventListener('resize', handleScrollbar);
+
+    // --- SLIDING NAV ON SCROLL AND HOVER LOGIC ---
+    const slidingNav = document.getElementById('sliding-nav');
+    const hoverZone = document.getElementById('top-hover-zone');
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        slidingNav.classList.add('hidden');
+        slidingNav.classList.add('scrolled');
+      } else {
+        slidingNav.classList.remove('hidden');
+        slidingNav.classList.remove('scrolled');
+      }
+    });
+
+    hoverZone.addEventListener('mouseenter', () => {
+      slidingNav.classList.remove('hidden');
+    });
+
+    slidingNav.addEventListener('mouseleave', () => {
+      if (window.scrollY > 100) {
+        slidingNav.classList.add('hidden');
+      }
+    });
+  </script>
+
+</body>
+</html>
