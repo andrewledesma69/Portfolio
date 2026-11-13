@@ -12,33 +12,33 @@
       /* Light Mode Variables */
       --bg-color: #f4f4f4;
       --text-color: #1c1d20;
-      --placeholder-bg: #e0e0e0;
       --border-color: rgba(28, 29, 32, 0.15); 
       
       /* Header Variables */
       --nav-gradient: linear-gradient(to bottom, rgba(244, 244, 244, 0.9) 0%, rgba(244, 244, 244, 0) 100%);
       --glass-bg: rgba(244, 244, 244, 0.4); 
       --hero-shadow: none; 
+      --placeholder-bg: #e0e0e0;
+      --marquee-gap: 2rem;
     }
 
     [data-theme="dark"] {
       /* Dark Mode Variables */
       --bg-color: #1c1d20;
       --text-color: #ffffff;
-      --placeholder-bg: #2c2d30;
       --border-color: rgba(255, 255, 255, 0.1);
       
       /* Header Variables */
       --nav-gradient: linear-gradient(to bottom, rgba(28, 29, 32, 0.9) 0%, rgba(28, 29, 32, 0) 100%);
       --glass-bg: rgba(28, 29, 32, 0.4); 
       --hero-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3), 0px 4px 15px rgba(0, 0, 0, 0.25); 
+      --placeholder-bg: #2c2d30;
     }
 
     /* --- HIDE NATIVE SCROLLBAR --- */
     ::-webkit-scrollbar {
       display: none; 
     }
-    
     html {
       scrollbar-width: none; 
     }
@@ -55,6 +55,7 @@
       font-family: 'Inter', sans-serif;
       transition: background-color 0.4s ease, color 0.4s ease;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* --- SLIDING NAVIGATION --- */
@@ -73,10 +74,8 @@
       left: 0;
       width: 100%;
       z-index: 999; 
-      
       background: var(--nav-gradient);
       border-bottom: none; 
-      
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -90,7 +89,6 @@
       background: var(--glass-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-bottom: none;
     }
 
     .sliding-nav.hidden {
@@ -134,11 +132,9 @@
       transform: translateY(-50%);
       right: 4rem;
       z-index: 1000;
-      
       background-color: var(--glass-bg); 
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      
       border: 1px solid var(--border-color);
       color: var(--text-color);
       padding: 0.5rem 1rem;
@@ -179,12 +175,11 @@
       white-space: nowrap; 
       color: var(--text-color);
       z-index: 2; 
-      
       text-shadow: var(--hero-shadow);
       transition: text-shadow 0.4s ease, color 0.4s ease; 
     }
 
-    /* --- 2X BIGGER MINIMALIST SCROLL ARROW (LOCKED TO BLACK) --- */
+    /* --- 2X BIGGER MINIMALIST SCROLL ARROW --- */
     .hero-scroll-arrow {
       position: absolute;
       bottom: 2.5rem;
@@ -203,15 +198,9 @@
     }
 
     @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateX(-50%) translateY(0);
-      }
-      40% {
-        transform: translateX(-50%) translateY(-10px);
-      }
-      60% {
-        transform: translateX(-50%) translateY(-5px);
-      }
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
     }
 
     /* --- INTRO TEXT SECTION --- */
@@ -240,9 +229,9 @@
       font-weight: 300;
     }
 
-    /* --- RECENT WORK SECTION --- */
+    /* --- RECENT WORK SECTION (INFINITE SCROLLING MARQUEE) --- */
     .work {
-      padding: 6rem 4rem;
+      padding: 6rem 0; 
     }
 
     .work-header {
@@ -250,39 +239,104 @@
       text-transform: uppercase;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 1rem;
+      margin: 0 4rem 4rem 4rem;
+    }
+
+    .project-marquee {
+      position: relative;
+      width: 100%;
+      padding: 2rem 0;
       margin-bottom: 4rem;
-    }
-
-    .project {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-      padding: 3rem 0;
+      overflow: hidden;
+      background: transparent; 
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .project-image {
-      width: 45%;
-      aspect-ratio: 16 / 9; 
-      background-color: var(--placeholder-bg);
-      transition: background-color 0.4s ease;
+    .marquee-track {
+      display: flex;
+      gap: var(--marquee-gap);
+      width: max-content;
+      transition: filter 0.5s ease;
     }
 
+    .marquee-group {
+      display: flex;
+      gap: var(--marquee-gap);
+      flex-shrink: 0;
+    }
+
+    /* Soft rounded images */
+    .marquee-group img {
+      height: 320px; 
+      aspect-ratio: 1 / 1; 
+      object-fit: cover;
+      border-radius: 40px; 
+      background-color: var(--placeholder-bg); 
+    }
+
+    /* Scrolling Animations - 0.5x Slower (70s) */
+    .scroll-left {
+      animation: marquee-left 70s linear infinite;
+    }
+    .scroll-right {
+      animation: marquee-right 70s linear infinite;
+    }
+
+    /* Hover & Mobile Tap States: Dim images, keep scrolling */
+    .project-marquee:hover .marquee-track,
+    .project-marquee:active .marquee-track {
+      filter: brightness(0.25);
+    }
+
+    /* Hidden Text Details */
     .project-details {
-      width: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -30%); 
+      text-align: center;
+      z-index: 2;
+      opacity: 0; 
+      width: 100%;
+      padding: 0 1rem;
+      transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      color: #ffffff; 
+      pointer-events: none; 
     }
 
     .project-title {
-      font-size: 3.5rem;
+      font-size: 4rem;
       font-weight: 400;
       margin-bottom: 0.5rem;
+      text-shadow: 0px 4px 20px rgba(0, 0, 0, 0.8); 
     }
 
     .project-category {
       font-size: 1rem;
       font-weight: 300;
-      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.9;
+      text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Hover & Mobile Tap Reveal Text */
+    .project-marquee:hover .project-details,
+    .project-marquee:active .project-details {
+      opacity: 1;
+      transform: translate(-50%, -50%); 
+    }
+
+    /* Mathematically Perfect Infinite Loop Math */
+    @keyframes marquee-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(calc(-50% - (var(--marquee-gap) / 2))); } 
+    }
+    
+    @keyframes marquee-right {
+      0% { transform: translateX(calc(-50% - (var(--marquee-gap) / 2))); }
+      100% { transform: translateX(0); }
     }
 
     /* --- FOOTER --- */
@@ -300,75 +354,130 @@
       margin-bottom: 2rem;
     }
 
-    /* --- PRELOADER --- */
+    /* --- PRELOADER & SCROLLBAR --- */
     #preloader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+      background-color: var(--bg-color); color: var(--text-color);
+      z-index: 9999; display: flex; justify-content: center; align-items: center;
       transition: opacity 0.8s ease, visibility 0.8s ease;
     }
+    .preloader-content { font-size: 7.5vw; font-weight: 600; letter-spacing: -.05em; white-space: nowrap; text-align: center; }
+    #cursor { display: inline-block; font-weight: 400; animation: blink 1s step-end infinite; transition: opacity 0.3s ease; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .preloader-hidden { opacity: 0; visibility: hidden; }  
 
-    .preloader-content {
-      font-size: 7.5vw; 
-      font-weight: 600; 
-      letter-spacing: -.05em;
-      white-space: nowrap; 
-      text-align: center;
-    }
+    .reveal { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
 
-    #cursor {
-      display: inline-block;
-      font-weight: 400;
-      animation: blink 1s step-end infinite;
-      transition: opacity 0.3s ease; 
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .preloader-hidden {
-      opacity: 0;
-      visibility: hidden;
-    }  
-
-    /* --- SCROLL REVEAL ANIMATION CLASSES --- */
-    .reveal {
-      opacity: 0;
-      transform: translateY(60px); 
-      transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); 
-    }
-
-    .reveal.active {
-      opacity: 1;
-      transform: translateY(0); 
-    }
-
-    /* --- INVERSE PROGRESS SCROLLBAR --- */
     #custom-scrollbar {
-      position: fixed;
-      bottom: 0; 
-      right: 0; 
-      width: 6px; 
-      background-color: var(--text-color); 
-      border-radius: 0; 
-      z-index: 10001; 
-      opacity: 0; 
-      transition: opacity 0.2s ease; 
-      pointer-events: none; 
+      position: fixed; bottom: 0; right: 0; width: 6px; background-color: var(--text-color);
+      border-radius: 0; z-index: 10001; opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
     }
+    #custom-scrollbar.visible { opacity: 0.6; }
 
-    #custom-scrollbar.visible {
-      opacity: 0.6; 
+    /* --- MOBILE PORTRAIT RESPONSIVENESS --- */
+    @media (max-width: 768px) {
+      :root {
+        --marquee-gap: 1.25rem;
+      }
+
+      /* 1. Compact Navigation & Theme Button */
+      .sliding-nav {
+        padding: 0 1.25rem;
+        padding-right: 7.5rem;
+        height: 80px;
+      }
+
+      .brand-logo {
+        height: 2.2rem;
+      }
+
+      .nav-links {
+        gap: 1.1rem;
+      }
+
+      .nav-links a {
+        font-size: 0.9rem;
+      }
+
+      .theme-toggle {
+        top: 40px;
+        right: 1.25rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      /* 2. Scale Hero & Preloader Typography for Vertical Screens */
+      .hero-morse,
+      .preloader-content {
+        font-size: 13vw;
+      }
+
+      .hero-scroll-arrow {
+        bottom: 2rem;
+      }
+
+      .hero-scroll-arrow svg {
+        width: 44px;
+        height: 44px;
+      }
+
+      /* 3. Intro Text Adjustments */
+      .intro-text {
+        padding: 5rem 1.5rem 3rem 1.5rem;
+      }
+
+      .intro-text h1 {
+        font-size: 10vw;
+        margin-bottom: 2rem;
+      }
+
+      .hero-subtext {
+        justify-content: flex-start;
+        padding-right: 0;
+      }
+
+      .hero-subtext p {
+        font-size: 1.05rem;
+      }
+
+      /* 4. Mobile-Sized Marquee Carousels */
+      .work {
+        padding: 4rem 0;
+      }
+
+      .work-header {
+        margin: 0 1.5rem 2.5rem 1.5rem;
+        font-size: 1rem;
+      }
+
+      .project-marquee {
+        padding: 1rem 0;
+        margin-bottom: 2.5rem;
+      }
+
+      .marquee-group img {
+        height: 190px;
+        border-radius: 24px;
+      }
+
+      .project-title {
+        font-size: 2.2rem;
+      }
+
+      .project-category {
+        font-size: 0.8rem;
+      }
+
+      /* 5. Footer Scaling */
+      footer {
+        padding: 5rem 1.5rem 3rem 1.5rem;
+      }
+
+      footer h2 {
+        font-size: 11vw;
+        margin-bottom: 1.5rem;
+      }
     }
   </style>
 </head>
@@ -381,18 +490,12 @@
     </div>
   </div>
 
-  <!-- CUSTOM SCROLLBAR -->
   <div id="custom-scrollbar"></div>
-
-  <!-- INVISIBLE HOVER ZONE AT TOP -->
   <div id="top-hover-zone"></div>
 
-  <!-- SLIDING NAVIGATION BAR -->
+  <!-- SLIDING NAV -->
   <div class="sliding-nav" id="sliding-nav">
-    <a href="#">
-      <img src="logo.png" alt="LaSushi" class="brand-logo">
-    </a>
-    
+    <a href="#"><img src="logo.png" alt="LaSushi" class="brand-logo"></a>
     <div class="nav-links">
       <a href="#work">Work</a>
       <a href="#about">About</a>
@@ -400,61 +503,111 @@
     </div>
   </div>
 
-  <!-- PERMANENTLY FIXED THEME BUTTON -->
   <button class="theme-toggle" id="toggle-btn">Light Mode</button>
 
-  <!-- Full Screen Top Area with Video -->
+  <!-- HERO -->
   <section class="media-hero">
     <video class="hero-video-bg" autoplay loop muted playsinline>
       <source src="hero-video.mp4" type="video/mp4">
     </video>
     <div class="hero-morse"><span style="visibility: hidden; font-weight: 400;">|</span>LaSushi<span style="visibility: hidden; font-weight: 400;">|</span></div>
-    
-    <!-- 2x Bigger Bouncing Arrow (Black) -->
     <div class="hero-scroll-arrow">
-      <svg viewBox="0 0 24 24">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
     </div>
   </section>
 
-  <!-- Intro Text -->
+  <!-- INTRO -->
   <section class="intro-text reveal">
-    <h1>Graphic Designer —<br>Post-Production Specialist</h1>
+    <h1>Graphic Designer —<br>Freelance Artist</h1>
     <div class="hero-subtext">
-      <p>Helping creators and brands tell better stories through sequence blocking, pacing, and cinematic execution. Based in the Philippines.</p>
+      <p>Helping creators and brands tell stories by making things make sense. Based in the Philippines.</p>
     </div>
   </section>
 
-  <!-- Work Section -->
+  <!-- WORK SECTION -->
   <section class="work" id="work">
     <div class="work-header reveal">Recent Work</div>
 
-    <div class="project reveal">
+    <!-- 1. MEDIA MARATHON (Scrolls Right) -->
+    <div class="project-marquee reveal">
+      <div class="marquee-track scroll-right">
+        <!-- Group 1 -->
+        <div class="marquee-group">
+          <img src="Fixed tote bag.png" alt="Work">
+          <img src="Business Card (US).png" alt="Work">
+          <img src="Fixed ip.png" alt="Work">
+          <img src="Free_Cap_Mockup.png" alt="Work">
+          <img src="Fixed van.png" alt="Work">
+        </div>
+        <!-- Group 2 (Duplicate for loop) -->
+        <div class="marquee-group">
+          <img src="Fixed tote bag.png" alt="Work">
+          <img src="Business Card (US).png" alt="Work">
+          <img src="Fixed ip.png" alt="Work">
+          <img src="Free_Cap_Mockup.png" alt="Work">
+          <img src="Fixed van.png" alt="Work">
+        </div>
+      </div>
       <div class="project-details">
         <h2 class="project-title">Media Marathon</h2>
         <span class="project-category">Sequence Blocking & Assembly</span>
       </div>
-      <div class="project-image"></div>
     </div>
 
-    <div class="project reveal">
-      <div class="project-image"></div>
-      <div class="project-details" style="padding-left: 5%;">
+    <!-- 2. CREATIVE EDIT (Scrolls Left) -->
+    <div class="project-marquee reveal">
+      <div class="marquee-track scroll-left">
+        <!-- Group 1 -->
+        <div class="marquee-group">
+          <img src="Fixed tote bag.png" alt="Work">
+          <img src="Business Card (US).png" alt="Work">
+          <img src="Fixed ip.png" alt="Work">
+          <img src="Free_Cap_Mockup.png" alt="Work">
+          <img src="Fixed van.png" alt="Work">
+        </div>
+        <!-- Group 2 (Duplicate for loop) -->
+        <div class="marquee-group">
+          <img src="Fixed tote bag.png" alt="Work">
+          <img src="Business Card (US).png" alt="Work">
+          <img src="Fixed ip.png" alt="Work">
+          <img src="Free_Cap_Mockup.png" alt="Work">
+          <img src="Fixed van.png" alt="Work">
+        </div>
+      </div>
+      <div class="project-details">
         <h2 class="project-title">Creative Edit</h2>
         <span class="project-category">Multi-Cam & Lower Thirds</span>
       </div>
     </div>
     
-    <div class="project reveal">
+    <!-- 3. GUITAR PERFORMANCE (Scrolls Right) -->
+    <div class="project-marquee reveal">
+      <div class="marquee-track scroll-right">
+        <!-- Group 1 -->
+        <div class="marquee-group">
+          <img src="Fixed tote bag.png" alt="Work">
+          <img src="Business Card (US).png" alt="Work">
+          <img src="Fixed ip.png" alt="Work">
+          <img src="Free_Cap_Mockup.png" alt="Work">
+          <img src="Fixed van.png" alt="Work">
+        </div>
+        <!-- Group 2 (Duplicate for loop) -->
+        <div class="marquee-group">
+          <img src="Fixed tote bag.png" alt="Work">
+          <img src="Business Card (US).png" alt="Work">
+          <img src="Fixed ip.png" alt="Work">
+          <img src="Free_Cap_Mockup.png" alt="Work">
+          <img src="Fixed van.png" alt="Work">
+        </div>
+      </div>
       <div class="project-details">
         <h2 class="project-title">Guitar Performance</h2>
         <span class="project-category">Audio Sync & Live Cut</span>
       </div>
-      <div class="project-image"></div>
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer id="contact" class="reveal">
     <h2>Let's work together</h2>
     <p>Landrewjunil@gmail.com</p>
@@ -466,34 +619,21 @@
     const typewriterElement = document.getElementById("typewriter");
     const cursorElement = document.getElementById("cursor"); 
     const preloaderElement = document.getElementById("preloader");
-    let typeIndex = 0;
-    const typingSpeed = 150; 
-
+    let typeIndex = 0; const typingSpeed = 150; 
     function typeWriter() {
       if (typeIndex < morseText.length) {
         typewriterElement.innerHTML += morseText.charAt(typeIndex);
-        typeIndex++;
-        setTimeout(typeWriter, typingSpeed);
+        typeIndex++; setTimeout(typeWriter, typingSpeed);
       } else {
-        setTimeout(() => {
-          cursorElement.style.opacity = "0"; 
-          cursorElement.style.animation = "none"; 
-        }, 500);
-
-        setTimeout(() => {
-          preloaderElement.classList.add("preloader-hidden");
-        }, 1200); 
+        setTimeout(() => { cursorElement.style.opacity = "0"; cursorElement.style.animation = "none"; }, 500);
+        setTimeout(() => { preloaderElement.classList.add("preloader-hidden"); }, 1200); 
       }
     }
+    window.onload = () => { typeWriter(); };
 
-    window.onload = () => {
-      typeWriter();
-    };
-
-    // Dark & Light Mode Logic
+    // --- DARK & LIGHT MODE ---
     const toggleBtn = document.getElementById('toggle-btn');
     const htmlElement = document.documentElement;
-
     toggleBtn.addEventListener('click', () => {
       if (htmlElement.getAttribute('data-theme') === 'dark') {
         htmlElement.setAttribute('data-theme', 'light');
@@ -504,74 +644,46 @@
       }
     });
 
-    // --- SCROLL REVEAL LOGIC ---
+    // --- SCROLL REVEAL ---
     function revealElements() {
       const reveals = document.querySelectorAll('.reveal');
       for (let i = 0; i < reveals.length; i++) {
         const windowHeight = window.innerHeight;
         const elementTop = reveals[i].getBoundingClientRect().top;
-        const elementVisible = 100; 
-
-        if (elementTop < windowHeight - elementVisible) {
-          reveals[i].classList.add('active');
-        }
+        if (elementTop < windowHeight - 100) reveals[i].classList.add('active');
       }
     }
-    
     window.addEventListener('scroll', revealElements);
     setTimeout(revealElements, 2000); 
 
-    // --- INVERSE PROGRESS SCROLLBAR LOGIC ---
+    // --- INVERSE SCROLLBAR ---
     const customScrollbar = document.getElementById('custom-scrollbar');
     let scrollTimeout;
-
     function handleScrollbar() {
       const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const maxScroll = documentHeight - windowHeight;
-      const scrollY = window.scrollY;
-
+      const maxScroll = document.documentElement.scrollHeight - windowHeight;
       if (maxScroll <= 0) return;
-
-      const scrollPercentage = scrollY / maxScroll;
-      const thumbHeight = windowHeight * (1 - scrollPercentage);
-      customScrollbar.style.height = `${thumbHeight}px`;
-      customScrollbar.style.transform = `none`; 
+      const scrollPercentage = window.scrollY / maxScroll;
+      customScrollbar.style.height = `${windowHeight * (1 - scrollPercentage)}px`;
       customScrollbar.classList.add('visible');
-
       clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        customScrollbar.classList.remove('visible');
-      }, 200); 
+      scrollTimeout = setTimeout(() => { customScrollbar.classList.remove('visible'); }, 200); 
     }
-
     window.addEventListener('scroll', handleScrollbar);
     window.addEventListener('resize', handleScrollbar);
 
-    // --- SLIDING NAV ON SCROLL AND HOVER LOGIC ---
+    // --- SLIDING NAV ---
     const slidingNav = document.getElementById('sliding-nav');
     const hoverZone = document.getElementById('top-hover-zone');
-
     window.addEventListener('scroll', () => {
       if (window.scrollY > 100) {
-        slidingNav.classList.add('hidden');
-        slidingNav.classList.add('scrolled');
+        slidingNav.classList.add('hidden', 'scrolled');
       } else {
-        slidingNav.classList.remove('hidden');
-        slidingNav.classList.remove('scrolled');
+        slidingNav.classList.remove('hidden', 'scrolled');
       }
     });
-
-    hoverZone.addEventListener('mouseenter', () => {
-      slidingNav.classList.remove('hidden');
-    });
-
-    slidingNav.addEventListener('mouseleave', () => {
-      if (window.scrollY > 100) {
-        slidingNav.classList.add('hidden');
-      }
-    });
+    hoverZone.addEventListener('mouseenter', () => slidingNav.classList.remove('hidden'));
+    slidingNav.addEventListener('mouseleave', () => { if (window.scrollY > 100) slidingNav.classList.add('hidden'); });
   </script>
-
 </body>
 </html>
